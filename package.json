@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/shantw/bamazon/issues"
   },
-  "homepage": "https://github.com/shantw/bamazon#readme"
+  "homepage": "https://github.com/shantw/bamazon#readme",
+  "dependencies": {
+    "inquirer": "^4.0.1",
+    "mysql": "^2.15.0"
+  }
 }
