@@ -18,8 +18,11 @@ connection.connect(function(err) {
     console.log("connected as id " + connection.threadId);
     //connection.end();
     readProducts();
+    //console.log('----------------');
+    //orderItem();
   });
-  orderItem();
+  
+  
 
 //READ DATA FROM PRODUCTS TABLE
   function readProducts() {
@@ -32,7 +35,9 @@ connection.connect(function(err) {
       for (var i = 0; i < res.length; i++) {
         console.log(res[i].item_id + "       |  " + res[i].product_name + "              |  " + '$ ' + res[i].price);
       }
-      connection.end();
+      //connection.end();
+      orderItem();
+      //return;
     });
   }
 
@@ -59,9 +64,48 @@ function orderItem() {
         }
       ])
       .then(function(answer) {
-        // when finished prompting, insert a new item into the db with that info
-        
-          console.log('OK');
+        // when finished prompting, check if the quantity of the item is greater than 0
+        connection.query("SELECT stock_quantity FROM products where ?", 
+        {
+            item_id : answer.item
+          }
+        ,
+        function(err, res) {
+         if (err) throw err;
+         //console.log(res[0].stock_quantity);
+         //console.log(parseInt(answer.quantity));
+          if (res[0].stock_quantity > parseInt(answer.quantity)){
+            var newQuantity = res[0].stock_quantity - answer.quantity;
+             updateStock(answer.item,newQuantity);
+          }
+          else
+          {
+            console.log('Insufficient Quantity');
+          }
+          connection.end();
+  
+        });
+          //console.log('OK');
         
       });
   }
+
+
+  function updateStock(itemId,quantity) {
+    
+        connection.query("UPDATE products SET ? WHERE ?", 
+        [
+          {
+            stock_quantity : quantity
+          },
+          {
+            item_id : itemId
+          }
+        ],      
+        
+        function(err, res) {
+          if (err) throw err;
+          console.log('Updated!The new qunatity on hand is ' + quantity);
+
+        });
+      }
