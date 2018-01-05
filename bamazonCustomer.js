@@ -18,8 +18,6 @@ connection.connect(function(err) {
     console.log("connected as id " + connection.threadId);
     //connection.end();
     readProducts();
-    //console.log('----------------');
-    //orderItem();
   });
   
   
@@ -35,7 +33,6 @@ connection.connect(function(err) {
       for (var i = 0; i < res.length; i++) {
         console.log(res[i].item_id + "       |  " + res[i].product_name + "              |  " + '$ ' + res[i].price);
       }
-      //connection.end();
       orderItem();
       //return;
     });
@@ -76,13 +73,13 @@ function orderItem() {
          //console.log(parseInt(answer.quantity));
           if (res[0].stock_quantity > parseInt(answer.quantity)){
             var newQuantity = res[0].stock_quantity - answer.quantity;
-             updateStock(answer.item,newQuantity);
+             updateStock(answer.item,newQuantity,answer.quantity);
           }
           else
           {
             console.log('Insufficient Quantity');
           }
-          connection.end();
+         // connection.end();
   
         });
           //console.log('OK');
@@ -91,7 +88,7 @@ function orderItem() {
   }
 
 
-  function updateStock(itemId,quantity) {
+  function updateStock(itemId,quantity,quantity2) {
     
         connection.query("UPDATE products SET ? WHERE ?", 
         [
@@ -106,6 +103,24 @@ function orderItem() {
         function(err, res) {
           if (err) throw err;
           console.log('Updated!The new qunatity on hand is ' + quantity);
+          calcTotal(itemId,quantity2);
 
         });
       }
+
+      function calcTotal(itemId,q) {
+        
+            connection.query("SELECT * from products WHERE ?", 
+              {
+                item_id : itemId
+              },      
+            
+            function(err, res) {
+              if (err) throw err;
+              var total = res[0].price * q;
+              console.log('The price of this item is: '+ '$'+res[0].price);
+              console.log('The total cost of your order is: ' + '$' + total);
+              connection.end;
+              exit;
+            });
+          }
