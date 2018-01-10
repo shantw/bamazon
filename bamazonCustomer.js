@@ -121,6 +121,6 @@ function orderItem() {
               console.log('The price of this item is: '+ '$'+res[0].price);
               console.log('The total cost of your order is: ' + '$' + total);
               connection.end;
-              exit;
+              
             });
           }
